@@ -6,18 +6,23 @@
 //
 
 import UIKit
+import RealmSwift
 
-class ViewController: UIViewController {
+class HomeViewController: UIViewController {
 
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var startButton: UIButton!
+    
+    let realm = try! Realm()
+    
+    var gumiData: Results<GumiData>?
     
     var timerCount = 0
     var timer: Timer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
     }
     
     
@@ -32,10 +37,15 @@ class ViewController: UIViewController {
         
         let alert = UIAlertController(title: "맛있는 마이구미 획득!", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "획득하기", style: .default) { action in
-            print("Success!")
+            
+            let newGumiData = GumiData()
+            newGumiData.date = "22년 10월 26일"
+            newGumiData.gumiCount = self.timerCount
+            
+            self.save(gumiData: newGumiData)
         }
-        alert.addAction(action)
         
+        alert.addAction(action)
         
         timer?.invalidate()
         if timerCount > 4 {
@@ -48,6 +58,18 @@ class ViewController: UIViewController {
     @objc func fireTimer() {
         timerCount += 1
         timeLabel.text = "\(timerCount)"
+    }
+    
+    func save(gumiData: GumiData) {
+        do {
+            try realm.write {
+                realm.add(gumiData)
+            }
+        } catch {
+            print("Error saving context, \(error)")
+        }
+        
+        
     }
     
 }
